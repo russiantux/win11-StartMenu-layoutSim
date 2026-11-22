@@ -1,5 +1,8 @@
 <!doctype html><meta charset="utf-8"><script type="module">
+// Dev helper: seeds a sample layout into localStorage, then opens the app.
 import { catalog } from "../js/catalog.js";
-localStorage.setItem("win11-startmenu-layout", JSON.stringify({ pinned: catalog.slice(0, 20) }));
+const pinned = catalog.slice(0, 20);
+const taskbar = catalog.filter((a) => ["cat_fileexplorer", "cat_edge", "cat_store", "cat_terminal"].includes(a.uid));
+localStorage.setItem("win11-startmenu-layout", JSON.stringify({ pinned, customApps: [], taskbar }));
 location.href = "../index.html";
 </script>

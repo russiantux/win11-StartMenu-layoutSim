@@ -189,6 +189,16 @@ export function renderStartMenu(container) {
 
       pinnedArea.appendChild(pag);
     }
+
+    // Remove old hint
+    const oldHint = pinnedArea.querySelector(".start-hint");
+    if (oldHint) oldHint.remove();
+
+    // Taskbar hint
+    const hint = document.createElement("p");
+    hint.className = "start-hint";
+    hint.textContent = "Drag to reorder · Right-click for options · Alt+←/→ to move · Delete to unpin";
+    pinnedArea.appendChild(hint);
   }
 
   renderPage(currentPage);
