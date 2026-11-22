@@ -1,11 +1,11 @@
 /* Usage (copy this line into any project): */
 /* <script type="module" src="js/creator-banner.js"></script> */
-/* <creator-banner name="Viktor L" handle="russiantux" */
+/* <creator-banner name="Viktor L" handle="russiantux" avatar="https://github.com/russiantux.png?size=64" */
 /*                 href="https://github.com/russiantux" repo=""></creator-banner> */
 
 class CreatorBanner extends HTMLElement {
   static get observedAttributes() {
-    return ["name", "handle", "href", "repo"];
+    return ["name", "handle", "href", "repo", "avatar"];
   }
 
   constructor() {
@@ -18,6 +18,8 @@ class CreatorBanner extends HTMLElement {
 @media (prefers-color-scheme: dark) { .bar { background: #1b1b1b; color: #e6e6e6; border-bottom-color: rgba(255,255,255,0.08); } }
 .inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .badge { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 3px; background: #0078D4; color: #fff; font-weight: 700; font-size: 9px; flex-shrink: 0; }
+.badge.has-avatar { background: transparent; border-radius: 50%; overflow: hidden; width: 18px; height: 18px; }
+.avatar { width: 18px; height: 18px; border-radius: 50%; display: block; object-fit: cover; }
 .label { display: inline; white-space: nowrap; }
 .toggle { all: unset; cursor: pointer; color: #005ea2; text-decoration: underline; font-family: inherit; font-size: inherit; display: inline-flex; align-items: center; gap: 4px; }
 @media (prefers-color-scheme: dark) { .toggle { color: #73b3e7; } }
@@ -70,7 +72,27 @@ class CreatorBanner extends HTMLElement {
     const badge = document.createElement("span");
     badge.className = "badge";
     badge.setAttribute("aria-hidden", "true");
-    badge.textContent = this._getInitials(name);
+    const avatar = this._getAttr("avatar");
+    if (avatar.startsWith("https://")) {
+      const img = document.createElement("img");
+      img.className = "avatar";
+      img.setAttribute("src", avatar);
+      img.setAttribute("alt", "");
+      img.setAttribute("width", "18");
+      img.setAttribute("height", "18");
+      img.setAttribute("decoding", "async");
+      img.setAttribute("referrerpolicy", "no-referrer");
+      img.addEventListener("error", () => {
+        img.remove();
+        badge.textContent = this._getInitials(name);
+        badge.classList.remove("has-avatar");
+      });
+      badge.textContent = "";
+      badge.appendChild(img);
+      badge.classList.add("has-avatar");
+    } else {
+      badge.textContent = this._getInitials(name);
+    }
 
     // Label: "A project by {name}" + optional handle.
     const label = document.createElement("span");
