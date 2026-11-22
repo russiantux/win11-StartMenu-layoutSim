@@ -776,6 +776,16 @@ body {
 .site-footer a { color: inherit; }
 
 /* ==========================================================================
+   Pinned layout buttons
+   ========================================================================== */
+
+.pinned-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.pinned-actions { display: flex; gap: 6px; }
+.pinned-action { all: unset; cursor: pointer; font-size: 12px; padding: 4px 10px; border-radius: 4px;
+  border: 1px solid var(--border-color); opacity: 0.85; }
+.pinned-action:hover, .pinned-action:focus-visible { opacity: 1; background: rgba(127,127,127,0.15); }
+
+/* ==========================================================================
    Taskbar
    ========================================================================== */
 

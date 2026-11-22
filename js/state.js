@@ -3,11 +3,13 @@
  * Handles loading/saving to localStorage (with graceful fallback).
  */
 
+import { DEFAULT_PIN_UIDS, DEFAULT_TASKBAR_UIDS, entriesFor } from "./catalog.js";
+
 const STORAGE_KEY = "win11-startmenu-layout";
 
-/** Default empty layout. */
+/** Default layout: Windows 11 defaults for new visitors. */
 function defaultLayout() {
-  return { pinned: [], customApps: [], taskbar: [] };
+  return { pinned: entriesFor(DEFAULT_PIN_UIDS), customApps: [], taskbar: entriesFor(DEFAULT_TASKBAR_UIDS) };
 }
 
 /**
@@ -167,5 +169,19 @@ export function removePinnedApp(app) {
 /** Reorder the pinned list and persist. */
 export function reorderPinned(newOrder) {
   layout.pinned = newOrder;
+  saveLayout();
+}
+
+/** Replace Start and taskbar pins with the Windows defaults (keeps imported apps). Saves. */
+export function resetToDefaults() {
+  layout.pinned = entriesFor(DEFAULT_PIN_UIDS);
+  layout.taskbar = entriesFor(DEFAULT_TASKBAR_UIDS);
+  saveLayout();
+}
+
+/** Remove all Start and taskbar pins (keeps imported apps). Saves. */
+export function startBlank() {
+  layout.pinned = [];
+  layout.taskbar = [];
   saveLayout();
 }

@@ -36,3 +36,18 @@ export function sortedCatalog() {
 export function findCatalogEntry(uid) {
   return catalog.find((c) => c.uid === uid);
 }
+
+/** Approximate Windows 11 default Start pins (varies by edition and region). */
+export const DEFAULT_PIN_UIDS = [
+  "cat_edge", "cat_word", "cat_excel", "cat_powerpoint", "cat_outlook",
+  "cat_copilot", "cat_store", "cat_photos", "cat_settings", "cat_calculator",
+  "cat_clock", "cat_notepad", "cat_paint", "cat_fileexplorer", "cat_snippingtool",
+  "cat_teams",
+];
+/** Approximate Windows 11 default taskbar pins. */
+export const DEFAULT_TASKBAR_UIDS = ["cat_fileexplorer", "cat_edge", "cat_store"];
+
+/** Catalog entries for a list of uids (copies, in the given order). */
+export function entriesFor(uids) {
+  return uids.map((u) => catalog.find((c) => c.uid === u)).filter(Boolean).map((c) => ({ ...c }));
+}

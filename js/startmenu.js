@@ -7,7 +7,7 @@
  * - Full HTML5 drag-and-drop reorder + keyboard navigation (Alt+Arrows, Delete)
  */
 
-import { getLayout, addPinned, removePinned, reorderPinned, getCustomApps, isPinned as stateIsPinned } from "./state.js";
+import { getLayout, addPinned, removePinned, reorderPinned, getCustomApps, isPinned as stateIsPinned, resetToDefaults, startBlank, getTaskbar } from "./state.js";
 import { sortedCatalog } from "./catalog.js";
 import { ICONS, TILE_COLORS, FALLBACK_ICON } from "./icons.js";
 import { attachAppMenu } from "./appmenu.js";
@@ -17,6 +17,21 @@ const COLS = 6;
 
 /** Current page index across re-renders. */
 let currentPage = 0;
+
+/** Create a layout action button (Windows defaults / Start blank). */
+function makeLayoutButton(label, question, run) {
+  const b = document.createElement("button");
+  b.type = "button";
+  b.className = "pinned-action";
+  b.textContent = label;
+  b.addEventListener("click", () => {
+    const hasPins = getLayout().pinned.length > 0 || getTaskbar().length > 0;
+    if (hasPins && !window.confirm(question)) return;
+    currentPage = 0;
+    run();
+  });
+  return b;
+}
 /** uid of the currently dragged tile (or null). */
 let dragUid = null;
 /** text content of the search input across re-renders. */
@@ -121,7 +136,17 @@ export function renderStartMenu(container) {
   pinnedLabel.className = "section-label";
   const totalCount = pinned.length;
   pinnedLabel.textContent = totalCount > 0 ? `Pinned (${totalCount})` : "Pinned";
-  pinnedArea.appendChild(pinnedLabel);
+
+  const pinnedHeader = document.createElement("div");
+  pinnedHeader.className = "pinned-header";
+  pinnedHeader.appendChild(pinnedLabel);
+
+  const actions = document.createElement("div");
+  actions.className = "pinned-actions";
+  actions.appendChild(makeLayoutButton("Windows defaults", "Replace Start and taskbar pins with the Windows 11 defaults?", resetToDefaults));
+  actions.appendChild(makeLayoutButton("Start blank", "Remove all Start and taskbar pins?", startBlank));
+  pinnedHeader.appendChild(actions);
+  pinnedArea.appendChild(pinnedHeader);
 
   const totalPages = Math.max(1, Math.ceil(pinned.length / PINS_PER_PAGE));
   // Clamp currentPage so we never go past the last page

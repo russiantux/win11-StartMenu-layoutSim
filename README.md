@@ -10,6 +10,7 @@ A static web tool that simulates the Windows 11 Start menu so you can arrange pi
 - Simulated taskbar with its own pin list and drag reorder.
 - "All apps" side panel with search and an Add button per app.
 - Built-in catalog of common Windows apps.
+- New visitors start with an approximation of the Windows 11 default pins (the real list varies by edition and region). **Windows defaults** and **Start blank** switch at any time; both keep imported apps.
 - Import from `Get-StartApps` JSON, or from an existing ConfigureStartPins JSON.
 - Manual entry for packaged apps, desktop apps (AppID), and `.lnk` paths.
 - Export as ConfigureStartPins JSON (pretty or single-line), with an optional `applyOnce` flag.
