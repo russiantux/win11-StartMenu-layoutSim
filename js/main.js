@@ -6,7 +6,7 @@ import { renderStartMenu } from "./startmenu.js";
 import { renderTaskbar } from "./taskbar.js";
 import { renderExportPanel } from "./exportpanel.js";
 import { renderImportPanel } from "./importpanel.js";
-import { addPinned, removePinned, onChange, getLayout } from "./state.js";
+import { addPinned, removePinned, onChange, getLayout, getTaskbar } from "./state.js";
 
 let startEl = null;
 let exportEl = null;
@@ -19,7 +19,7 @@ function renderStart() {
 
 function renderExport() {
   if (!exportEl) return;
-  renderExportPanel(exportEl, getLayout().pinned);
+  renderExportPanel(exportEl, getLayout().pinned, getTaskbar());
 }
 
 function renderImport() {

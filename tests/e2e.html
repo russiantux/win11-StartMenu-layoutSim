@@ -83,7 +83,46 @@ frame.addEventListener("load", async () => {
     w.location.reload();
     await new Promise((r) => frame.addEventListener("load", r, { once: true }));
     await tick();
-    check("persists after reload", [...frame.contentDocument.querySelectorAll(".pin-tile:not(.pin-tile--empty)")].length === 2);
+    const d2 = frame.contentDocument;
+    check("persists after reload", [...d2.querySelectorAll(".pin-tile:not(.pin-tile--empty)")].length === 2);
+
+    // Context menu + taskbar
+    const rightClick = (el) => el.dispatchEvent(new w.MouseEvent("contextmenu", { bubbles: true, cancelable: true, clientX: 100, clientY: 100 }));
+    const menuItem = (label) => [...d2.querySelectorAll(".context-menu-item")].find((b) => b.textContent === label);
+    const tiles = () => [...d2.querySelectorAll(".pin-tile:not(.pin-tile--empty)")];
+    rightClick(tiles()[0]); await tick();
+    check("menu opens on pinned tile", !!d2.querySelector(".context-menu"));
+    check("menu has Pin to taskbar", !!menuItem("Pin to taskbar"));
+    menuItem("Pin to taskbar").click(); await tick();
+    check("menu closes after action", !d2.querySelector(".context-menu"));
+    check("taskbar shows app", d2.querySelectorAll(".taskbar-app").length === 1);
+    const second = tiles()[1].dataset.name;
+    rightClick(tiles()[1]); await tick();
+    menuItem("Move to front").click(); await tick();
+    check("move to front", tiles()[0].dataset.name === second, tiles().map((t) => t.dataset.name).join());
+    rightClick(tiles()[0]); await tick();
+    d2.querySelector(".context-menu").dispatchEvent(new w.KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    await tick();
+    check("escape closes menu", !d2.querySelector(".context-menu"));
+    const allRow = [...d2.querySelectorAll(".all-app-item")].find((r) => r.dataset.name === "Notepad");
+    rightClick(allRow); await tick();
+    menuItem("Pin to Start").click(); await tick();
+    check("all apps: pin to start", tiles().some((t) => t.dataset.name === "Notepad"));
+    rightClick(d2.querySelector(".taskbar-app")); await tick();
+    menuItem("Unpin from taskbar").click(); await tick();
+    check("taskbar: unpin", d2.querySelectorAll(".taskbar-app").length === 0 && !!d2.querySelector(".taskbar-empty"));
+
+    // Taskbar XML export
+    rightClick(tiles()[0]); await tick();
+    menuItem("Pin to taskbar").click(); await tick();
+    const fmt = d2.querySelector("#export-container select");
+    fmt.value = "taskbar"; fmt.dispatchEvent(new w.Event("change", { bubbles: true })); await tick();
+    const xmlOut = (d2.querySelector(".export-output") || {}).value || "";
+    check("export taskbar xml", xmlOut.includes("<CustomTaskbarLayoutCollection") && /taskbar:(UWA|DesktopApp)/.test(xmlOut), xmlOut.slice(0, 120));
+    check("taskbar export shows StartLayout URI", /Config\/Start\/StartLayout/.test(d2.querySelector("#export-container").textContent));
+    const fmt2 = d2.querySelector("#export-container select");
+    fmt2.value = fmt2.options[0].value; fmt2.dispatchEvent(new w.Event("change", { bubbles: true })); await tick();
+    check("switch back to JSON", ((d2.querySelector(".export-output") || {}).value || "").includes('"pinnedList"'));
   } catch (e) {
     out.push("FAIL exception: " + e.message); fails++;
   }
