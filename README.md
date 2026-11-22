@@ -19,7 +19,7 @@ A static web tool that simulates the Windows 11 Start menu so you can arrange pi
 
 ## Quick start
 
-- Hosted: open <PAGES_URL>.
+- Hosted: open https://russiantux.github.io/win11-StartMenu-layoutSim/
 - Local: from the project root, run
 
   ```sh
@@ -72,6 +72,10 @@ Deploying a full Start layout by policy stops users from pinning or unpinning ap
 
 - `tests/run-all.sh` syntax-checks every module and runs the unit tests (`tests/test-*.mjs`) with macOS JavaScriptCore (`jsc`). It needs macOS.
 - `tests/e2e.html` runs browser end-to-end checks. Serve the repo root (`python3 -m http.server 8000`), open http://localhost:8000/tests/e2e.html, and read the PASS/FAIL lines in `#results`.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
 
 ## Credits
 
