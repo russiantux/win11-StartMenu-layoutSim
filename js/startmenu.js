@@ -7,7 +7,7 @@
  * - Full HTML5 drag-and-drop reorder + keyboard navigation (Alt+Arrows, Delete)
  */
 
-import { getLayout, addPinned, removePinned, reorderPinned } from "./state.js";
+import { getLayout, addPinned, removePinned, reorderPinned, getCustomApps, isPinned as stateIsPinned } from "./state.js";
 import { sortedCatalog } from "./catalog.js";
 import { ICONS, TILE_COLORS, FALLBACK_ICON } from "./icons.js";
 
@@ -82,9 +82,10 @@ function createAppBadge(key, size) {
 export function renderStartMenu(container) {
   rootContainer = container;
   const hadSearchFocus = document.activeElement?.classList.contains("search-input");
-  const layout = getLayout();
-  const pinned = layout.pinned;
+  const currentLayout = getLayout();
+  const pinned = currentLayout.pinned;
   const catalog = sortedCatalog();
+  const customApps = getCustomApps();
 
   container.innerHTML = "";
   container.className = "start-menu";
@@ -199,8 +200,8 @@ export function renderStartMenu(container) {
 
   body.appendChild(pinnedArea);
 
-  // --- All apps sidebar ---
-  const sidebar = createAllAppsSidebar(catalog, pinned);
+  // --- All apps sidebar (catalog + custom apps) ---
+  const sidebar = createAllAppsSidebar(catalog, pinned, customApps);
   body.appendChild(sidebar);
 
   panel.appendChild(body);
@@ -390,11 +391,13 @@ function applySearchFilter(query) {
 
 /**
  * Create the All apps sidebar with Add buttons.
- * @param {import('./catalog.js').AppEntry[]} catalog - Sorted catalog entries.
- * @param {object[]} pinned - Currently pinned items.
+ * Merges catalog and custom apps, sorted by name.
+ * @param {import('./catalog.js').AppEntry[]} catalog - Catalog entries.
+ * @param {object[]} pinned - Currently pinned items (used for isPinned check).
+ * @param {import('./state.js').CustomPin[]} customApps - User-added apps.
  * @returns {HTMLElement}
  */
-function createAllAppsSidebar(catalog, pinned) {
+function createAllAppsSidebar(catalog, pinned, customApps) {
   const sidebar = document.createElement("div");
   sidebar.className = "all-apps-panel";
 
@@ -406,8 +409,37 @@ function createAllAppsSidebar(catalog, pinned) {
   const list = document.createElement("div");
   list.className = "all-app-list";
 
-  catalog.forEach((entry) => {
-    const isPinned = pinned.some((p) => p.uid === entry.uid);
+  // Build combined list: catalog + custom apps, sorted by name.
+  // Custom apps that match a catalog entry (same kind + value) are skipped entirely.
+  // Only non-matching custom apps get pushed with _isCustom=true.
+  /** @type {Array<{kind: string, value: string, uid?: string, icon: string, _isCustom?: boolean}>} */
+  const allApps = [...catalog];
+
+  for (const ca of (customApps || [])) {
+    // Skip if it matches any catalog entry (same kind + value, case-insensitive)
+    const hasMatch = allApps.find((c) => {
+      return c.kind === ca.kind && String(c.value).toLowerCase() === String(ca.value).toLowerCase();
+    });
+    if (hasMatch) continue; // already in catalog — just skip
+
+    /** @type {object} */
+    const entry = {
+      kind: ca.kind,
+      value: ca.value,
+      uid: ca.uid || ("imp_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8)),
+      name: ca.name,
+      icon: "app",
+      _isCustom: true,
+    };
+
+    allApps.push(entry);
+  }
+
+  allApps.sort((a, b) => a.name.localeCompare(b.name));
+
+  for (const entry of allApps) {
+    // Use imported isPinned to check (same kind, same value case-insensitive)
+    const alreadyPinned = stateIsPinned(entry);
 
     const item = document.createElement("div");
     item.className = "all-app-item";
@@ -426,14 +458,17 @@ function createAllAppsSidebar(catalog, pinned) {
     nameSpan.textContent = entry.name;
     item.appendChild(nameSpan);
 
-    if (!isPinned) {
-      const addBtn = document.createElement("button");
-      addBtn.className = "add-btn";
-      addBtn.textContent = "+ Add";
-      addBtn.setAttribute("aria-label", `Add ${entry.name}`);
+    // Custom apps get a small "Imported" tag (only non-matching custom apps)
+    if (entry._isCustom) {
+      const tag = document.createElement("span");
+      tag.className = "app-tag";
+      tag.textContent = "Imported";
+      item.appendChild(tag);
+    }
 
-      // Create a pinned entry from the catalog item
-      const pinnedEntry = {
+    if (!alreadyPinned) {
+      // Create a pinned entry from this item for dispatch
+      const eventDetail = {
         uid: entry.uid,
         name: entry.name,
         kind: entry.kind,
@@ -441,11 +476,16 @@ function createAllAppsSidebar(catalog, pinned) {
         icon: entry.icon,
       };
 
+      const addBtn = document.createElement("button");
+      addBtn.className = "add-btn";
+      addBtn.textContent = "+ Add";
+      addBtn.setAttribute("aria-label", `Add ${entry.name}`);
+
       addBtn.addEventListener("click", () => {
         // Dispatch event handled by main.js to add the pin
         item.dispatchEvent(new CustomEvent("app-added", {
           bubbles: true,
-          detail: pinnedEntry,
+          detail: eventDetail,
         }));
       });
 
@@ -458,7 +498,7 @@ function createAllAppsSidebar(catalog, pinned) {
     }
 
     list.appendChild(item);
-  });
+  }
 
   sidebar.appendChild(list);
   return sidebar;

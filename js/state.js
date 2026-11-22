@@ -7,7 +7,7 @@ const STORAGE_KEY = "win11-startmenu-layout";
 
 /** Default empty layout. */
 function defaultLayout() {
-  return { pinned: [] };
+  return { pinned: [], customApps: [] };
 }
 
 /**
@@ -20,7 +20,7 @@ function loadLayout() {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed?.pinned)) {
-        return parsed;
+        return { pinned: parsed.pinned, customApps: Array.isArray(parsed.customApps) ? parsed.customApps : [] };
       }
     }
   } catch {
@@ -29,7 +29,7 @@ function loadLayout() {
   return defaultLayout();
 }
 
-/** @type {{ pinned: import('./catalog.js').AppEntry[] }} */
+/** @type {{ pinned: import('./catalog.js').AppEntry[], customApps: import('./state.js').CustomPin[] }} */
 let layout = loadLayout();
 
 /** Subscribers notified after every save. */
@@ -59,9 +59,14 @@ export function saveLayout() {
   }
 }
 
-/** Get the current layout (pinned array). */
+/** Get the current layout (pinned + customApps arrays). */
 export function getLayout() {
   return layout;
+}
+
+/** Get the custom apps array. */
+export function getCustomApps() {
+  return layout.customApps;
 }
 
 /** Replace the entire pinned array and persist. */
@@ -70,9 +75,45 @@ export function setPinned(pinned) {
   saveLayout();
 }
 
-/** Add an app entry to the pinned list (unique by uid). */
+/**
+ * Check whether two pins are equivalent (same kind, value equal ignoring case).
+ * @param {{kind?: string, value?: string}} a
+ * @param {{kind?: string, value?: string}} b
+ * @returns {boolean}
+ */
+export function samePin(a, b) {
+  return a.kind === b.kind && String(a.value).toLowerCase() === String(b.value).toLowerCase();
+}
+
+/**
+ * Check whether an app entry is already pinned (in either pinned or customApps).
+ * @param {{kind: string, value: string}} app
+ * @returns {boolean}
+ */
+export function isPinned(app) {
+  if (layout.pinned.some((p) => samePin(p, app))) return true;
+  return false;
+}
+
+/** Add a batch of custom apps, deduplicating by samePin. Returns count added. */
+export function addCustomApps(apps) {
+  if (!Array.isArray(apps)) return 0;
+  let added = 0;
+  for (const app of apps) {
+    if (!app || !app.kind || !app.value) continue;
+    // Skip if already in customApps
+    if (layout.customApps && layout.customApps.some((c) => samePin(c, app))) continue;
+    layout.customApps.push(app);
+    added++;
+  }
+  saveLayout();
+  return added;
+}
+
+/** Add an app entry to the pinned list (unique by samePin comparison). */
 export function addPinned(entry) {
-  if (layout.pinned.some((p) => p.uid === entry.uid)) return false;
+  // Skip if already pinned (samePin comparison, not uid)
+  if (isPinned(entry)) return false;
   layout.pinned.push(entry);
   saveLayout();
   return true;

@@ -1,0 +1,93 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>E2E</title>
+<!-- Run: serve the repo root, open /tests/e2e.html (or headless Chrome --dump-dom). Results go in #results. -->
+<pre id="results">running</pre>
+<iframe id="app" src="../index.html" style="width:1300px;height:2400px"></iframe>
+<script type="module">
+const out = [];
+let fails = 0;
+const check = (name, cond, extra = "") => { out.push((cond ? "PASS " : "FAIL ") + name + (cond ? "" : "  " + extra)); if (!cond) fails++; };
+const tick = () => new Promise((r) => setTimeout(r, 50));
+const frame = document.getElementById("app");
+
+frame.addEventListener("load", async () => {
+  try {
+    const w = frame.contentWindow;
+    w.localStorage.clear();
+    w.location.reload();
+    await new Promise((r) => frame.addEventListener("load", r, { once: true }));
+    await tick();
+    const d = frame.contentDocument;
+    const $ = (s) => d.querySelector(s);
+    const $$ = (s) => [...d.querySelectorAll(s)];
+    const text = (el) => (el ? el.textContent : "");
+    const pinnedNames = () => $$(".pin-tile:not(.pin-tile--empty)").map((t) => t.dataset.name);
+    const exportText = () => ($(".export-output") || {}).value || "";
+
+    check("starts empty", pinnedNames().length === 0, pinnedNames().join());
+    check("import panel rendered", !!$("#import-container details"));
+
+    // Add from catalog
+    const calcRow = $$(".all-app-item").find((r) => r.dataset.name === "Calculator");
+    calcRow.querySelector(".add-btn").click(); await tick();
+    check("catalog add pins", pinnedNames().includes("Calculator"), pinnedNames().join());
+    check("export updates", exportText().includes("Microsoft.WindowsCalculator_8wekyb3d8bbwe!App"), exportText().slice(0, 80));
+
+    // Get-StartApps import (A)
+    const blocks = $$("#import-container details");
+    const gsaArea = blocks[0].querySelector("textarea");
+    gsaArea.value = JSON.stringify([
+      { Name: "Contoso CRM", AppID: "Contoso.CRM_abc123!App" },
+      { Name: "Calculator", AppID: "Microsoft.WindowsCalculator_8wekyb3d8bbwe!App" },
+      { Name: "<img src=x onerror=alert(1)>", AppID: "Evil.App" },
+    ]);
+    [...blocks[0].querySelectorAll("button")].find((b) => /Import/.test(b.textContent)).click(); await tick();
+    const allNames = () => $$(".all-app-item").map((r) => r.dataset.name);
+    check("import adds custom app", allNames().includes("Contoso CRM"), allNames().join());
+    check("import skips catalog duplicate", allNames().filter((n) => n === "Calculator").length === 1);
+    check("import status shown", /Added/.test(text(d.querySelector("#import-container .import-status"))), text(d.querySelector("#import-container .import-status")));
+    check("no html injection", !d.querySelector(".all-app-list img"));
+    const crm = $$(".all-app-item").find((r) => r.dataset.name === "Contoso CRM");
+    check("Imported tag", /Imported/.test(text(crm)), "pinned=" + pinnedNames().join() + " row=" + crm.innerHTML.slice(0,300));
+    crm.querySelector(".add-btn").click(); await tick();
+    check("pin imported app", pinnedNames().includes("Contoso CRM"));
+
+    // Manual add (C)
+    const man = blocks[2];
+    const inputs = man.querySelectorAll("input");
+    const sel = man.querySelector("select");
+    inputs[0].value = "Line of Business";
+    sel.value = "desktopAppLink"; sel.dispatchEvent(new Event("change"));
+    inputs[1].value = "%ALLUSERSPROFILE%\\Microsoft\\Windows\\Start Menu\\Programs\\LOB.exe";
+    [...man.querySelectorAll("button")].pop().click(); await tick();
+    check("manual: validation error shown", !!man.querySelector(".import-error") || !!$("#import-container .import-error"));
+    const man2 = $$("#import-container details")[2];
+    const in2 = man2.querySelectorAll("input");
+    const sel2 = man2.querySelector("select");
+    in2[0].value = "Line of Business"; sel2.value = "desktopAppLink"; sel2.dispatchEvent(new Event("change"));
+    in2[1].value = "%ALLUSERSPROFILE%\\Microsoft\\Windows\\Start Menu\\Programs\\LOB.lnk";
+    [...man2.querySelectorAll("button")].pop().click(); await tick();
+    check("manual: pinned", pinnedNames().includes("Line of Business"), pinnedNames().join());
+    check("manual: exported", exportText().includes("LOB.lnk"));
+
+    // Load layout (B)
+    w.confirm = () => true;
+    const lb = $$("#import-container details")[1];
+    lb.querySelector("textarea").value = JSON.stringify({ pinnedList: [{ packagedAppId: "Microsoft.Paint_8wekyb3d8bbwe!App" }, { desktopAppId: "Fabrikam.Tool" }] });
+    [...lb.querySelectorAll("button")].find((b) => /Load/.test(b.textContent)).click(); await tick();
+    check("load: replaced pins", pinnedNames().length === 2, pinnedNames().join());
+    check("load: unknown app in All apps", allNames().includes("Tool"), allNames().join());
+
+    // Persistence
+    w.location.reload();
+    await new Promise((r) => frame.addEventListener("load", r, { once: true }));
+    await tick();
+    check("persists after reload", [...frame.contentDocument.querySelectorAll(".pin-tile:not(.pin-tile--empty)")].length === 2);
+  } catch (e) {
+    out.push("FAIL exception: " + e.message); fails++;
+  }
+  out.push(fails ? `${fails} FAILED` : "ALL PASS");
+  document.getElementById("results").textContent = out.join("\n");
+}, { once: true });
+</script>

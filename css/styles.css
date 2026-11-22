@@ -470,7 +470,7 @@ body {
    Export panel
    ========================================================================== */
 
-#export-container {
+#import-container, #export-container {
   max-width: 880px;
   width: 100%;
   margin: 16px auto 0;
@@ -600,3 +600,150 @@ body {
   color: var(--text-secondary);
   margin-bottom: 4px;
 }
+
+/* ==========================================================================
+   Import panel styles
+   ========================================================================== */
+
+/* Details blocks (collapsible sections). */
+#import-container details {
+  background: var(--bg-panel);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+#import-container details > summary {
+  font-weight: bold;
+  cursor: pointer;
+  list-style: none; /* hide default marker */
+  margin-bottom: 8px;
+}
+
+/* Custom detail marker */
+#import-container details > summary::marker {
+  display: none;
+}
+
+#import-container details > summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Import note text */
+.import-note {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+/* Code row (script text + copy button). */
+.import-code-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.import-code-row code {
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 0.75rem;
+  background: var(--bg-input);
+  padding: 4px 8px;
+  border-radius: 3px;
+  color: var(--text-primary);
+  overflow-x: auto;
+  flex: 1;
+}
+
+/* Textareas (import paste fields). */
+.import-textarea {
+  width: 100%;
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  resize: vertical;
+  margin-bottom: 8px;
+}
+
+/* File inputs. */
+.import-file-input {
+  display: block;
+  font-size: 0.8rem;
+  margin-bottom: 10px;
+}
+
+/* Standard text inputs (manual add). */
+.import-input {
+  display: block;
+  width: 100%;
+  font-size: 0.85rem;
+  padding: 6px 10px;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  font-family: inherit;
+}
+
+/* Value input placeholder (changes via JS). */
+.import-value-input {
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 0.8rem;
+}
+
+/* Import buttons (reuse export-btn base). */
+.import-btn {
+  padding: 6px 18px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 4px;
+  background: var(--accent);
+  color: #ffffff;
+  cursor: pointer;
+  transition: background 0.12s, opacity 0.12s;
+}
+
+.import-btn:hover {
+  background: var(--accent-hover);
+}
+
+.import-btn--small {
+  padding: 3px 10px;
+  font-size: 0.75rem;
+}
+
+/* Status line (summary of operations). */
+.import-status {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-top: 6px;
+}
+
+/* Error lines (red). */
+.import-error {
+  font-size: 0.8rem;
+  color: #e81123;
+  margin-top: 4px;
+}
+
+/* Imported tag (for custom apps in sidebar). */
+.app-tag {
+  font-size: 0.65rem;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: var(--bg-active);
+  color: var(--text-secondary);
+  margin-left: 4px;
+}
+
+/* Custom icon badges (from imported custom apps) in sidebar. */
+.all-app-item > .icon-svg {
+  /* Badges handle their own color via inline style; no CSS override needed. */
+}
+
