@@ -3,6 +3,7 @@
  */
 
 import { renderStartMenu } from "./startmenu.js";
+import { renderTaskbar } from "./taskbar.js";
 import { renderExportPanel } from "./exportpanel.js";
 import { renderImportPanel } from "./importpanel.js";
 import { addPinned, removePinned, onChange, getLayout } from "./state.js";
@@ -31,6 +32,7 @@ function renderImport() {
 function renderAll() {
   renderStart();
   renderExport();
+  renderTaskbar(document.getElementById("taskbar-container"));
 }
 
 function boot() {
