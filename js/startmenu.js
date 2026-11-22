@@ -10,6 +10,7 @@
 import { getLayout, addPinned, removePinned, reorderPinned, getCustomApps, isPinned as stateIsPinned } from "./state.js";
 import { sortedCatalog } from "./catalog.js";
 import { ICONS, TILE_COLORS, FALLBACK_ICON } from "./icons.js";
+import { attachAppMenu } from "./appmenu.js";
 
 const PINS_PER_PAGE = 18; // 6 columns x 3 rows
 const COLS = 6;
@@ -307,6 +308,8 @@ function createPinTile(item) {
     }
   });
 
+  attachAppMenu(tile, item, "start");
+
   return tile;
 }
 
@@ -497,6 +500,8 @@ function createAllAppsSidebar(catalog, pinned, customApps) {
       item.appendChild(pinBadge);
     }
 
+    attachAppMenu(item, entry, "all");
+    item.tabIndex = 0;
     list.appendChild(item);
   }
 

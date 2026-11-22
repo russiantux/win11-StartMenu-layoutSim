@@ -1,5 +1,6 @@
 import { getTaskbar, reorderTaskbar } from "./state.js";
 import { createAppBadge } from "./startmenu.js";
+import { attachAppMenu } from "./appmenu.js";
 
 let dragIndex = -1;
 
@@ -57,6 +58,7 @@ export function renderTaskbar(container) {
       dragIndex = -1;
     });
 
+    attachAppMenu(btn, app, "taskbar");
     tb.appendChild(btn);
   });
 
