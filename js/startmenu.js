@@ -56,7 +56,7 @@ function createIcon(key, size) {
  * @param {number} size - Badge width/height in px.
  * @returns {HTMLElement} `<span class="app-badge">` or null
  */
-function createAppBadge(key, size) {
+export function createAppBadge(key, size) {
   const iconKey = key || FALLBACK_ICON;
   const badge = document.createElement("span");
   badge.className = "app-badge";

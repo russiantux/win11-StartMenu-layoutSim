@@ -7,7 +7,7 @@ const STORAGE_KEY = "win11-startmenu-layout";
 
 /** Default empty layout. */
 function defaultLayout() {
-  return { pinned: [], customApps: [] };
+  return { pinned: [], customApps: [], taskbar: [] };
 }
 
 /**
@@ -20,7 +20,7 @@ function loadLayout() {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed?.pinned)) {
-        return { pinned: parsed.pinned, customApps: Array.isArray(parsed.customApps) ? parsed.customApps : [] };
+        return { pinned: parsed.pinned, customApps: Array.isArray(parsed.customApps) ? parsed.customApps : [], taskbar: Array.isArray(parsed.taskbar) ? parsed.taskbar : [] };
       }
     }
   } catch {
@@ -122,6 +122,45 @@ export function addPinned(entry) {
 /** Remove a pinned item by uid and persist. */
 export function removePinned(uid) {
   layout.pinned = layout.pinned.filter((p) => p.uid !== uid);
+  saveLayout();
+}
+
+/** Get the taskbar pinned array. */
+export function getTaskbar() {
+  return layout.taskbar;
+}
+
+/** Add an app to the taskbar, skipping if already on it (by samePin). Saves. */
+export function addToTaskbar(app) {
+  if (!app || !app.kind || !app.value) return;
+  if (isOnTaskbar(app)) return;
+  layout.taskbar.push(app);
+  saveLayout();
+}
+
+/** Remove an app from the taskbar by samePin. Saves. */
+export function removeFromTaskbar(app) {
+  if (!app || !app.kind || !app.value) return;
+  layout.taskbar = layout.taskbar.filter((t) => !samePin(t, app));
+  saveLayout();
+}
+
+/** Check whether an app is on the taskbar (by samePin). */
+export function isOnTaskbar(app) {
+  if (!app || !app.kind || !app.value) return false;
+  return layout.taskbar.some((t) => samePin(t, app));
+}
+
+/** Reorder the taskbar list and persist. */
+export function reorderTaskbar(newOrder) {
+  layout.taskbar = newOrder;
+  saveLayout();
+}
+
+/** Remove an app from the pinned list by samePin (not uid). Saves. */
+export function removePinnedApp(app) {
+  if (!app || !app.kind || !app.value) return;
+  layout.pinned = layout.pinned.filter((p) => !samePin(p, app));
   saveLayout();
 }
 
