@@ -1,0 +1,590 @@
+/* ==========================================================================
+   Win11 Start Menu Layout Editor — Styles
+   Fluent-inspired, respects prefers-color-scheme.
+   ========================================================================== */
+
+/* --- Reset & base --- */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  font-family: "Segoe UI Variable", "Segoe UI", system-ui, -apple-system, sans-serif;
+  background: var(--bg-app);
+  color: var(--text-primary);
+  display: flex;
+  justify-content: center;
+  padding: 2rem 1rem;
+  transition: background 0.2s, color 0.2s;
+}
+
+/* --- Light / Dark tokens (prefers-color-scheme) --- */
+@media (prefers-color-scheme: light) {
+  :root,
+  body:not([data-theme]) {
+    --bg-app: #f3f3f1;
+    --bg-panel: #ffffff;
+    --bg-hover: #f5f5f5;
+    --bg-active: #e8e8e8;
+    --bg-input: #ffffff;
+    --border-color: #e0e0e0;
+    --text-primary: #1a1a1a;
+    --text-secondary: #616161;
+    --text-placeholder: #9e9e9e;
+    --accent: #0067c0;
+    --accent-hover: #005a9e;
+    --tile-bg: #f8f8f8;
+    --tile-border: transparent;
+    --tile-hover: #eaeaea;
+    --shadow-panel: 0 8px 32px rgba(0, 0, 0, 0.12);
+    --remove-bg: rgba(0, 0, 0, 0.06);
+    --remove-hover: #e81123;
+    --badge-bg: #0067c0;
+    --add-bg: transparent;
+    --add-hover: #e8e8e8;
+    --add-text: var(--accent);
+    --search-bg: #f3f3f1;
+    --search-border: #e0e0e0;
+    --search-focus: var(--accent);
+    --page-dot: #c5c5c5;
+    --page-active: var(--accent);
+    --sidebar-bg: transparent;
+    --header-text: #1a1a1a;
+    --header-sub: #616161;
+    --svg-color: #1a1a1a;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root,
+  body[data-theme="dark"] {
+    --bg-app: #202020;
+    --bg-panel: #2d2d2d;
+    --bg-hover: #3a3a3a;
+    --bg-active: #454545;
+    --bg-input: #3a3a3a;
+    --border-color: #3d3d3d;
+    --text-primary: #ffffff;
+    --text-secondary: #a0a0a0;
+    --text-placeholder: #777777;
+    --accent: #60cdff;
+    --accent-hover: #7ef0ff;
+    --tile-bg: #323232;
+    --tile-border: transparent;
+    --tile-hover: #3e3e3e;
+    --shadow-panel: 0 8px 32px rgba(0, 0, 0, 0.36);
+    --remove-bg: rgba(255, 255, 255, 0.08);
+    --remove-hover: #e81123;
+    --badge-bg: #60cdff;
+    --add-bg: transparent;
+    --add-hover: #3a3a3a;
+    --add-text: var(--accent);
+    --search-bg: #2d2d2d;
+    --search-border: #3d3d3d;
+    --search-focus: var(--accent);
+    --page-dot: #666666;
+    --page-active: var(--accent);
+    --sidebar-bg: transparent;
+    --header-text: #ffffff;
+    --header-sub: #a0a0a0;
+    --svg-color: #ffffff;
+  }
+}
+
+/* --- App header --- */
+#app header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+#app h1 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--header-text);
+}
+
+.subtitle {
+  font-size: 0.85rem;
+  color: var(--header-sub);
+  margin-top: 0.25rem;
+}
+
+/* --- Start menu panel --- */
+.start-menu {
+  width: 100%;
+  max-width: 880px;
+}
+
+.start-panel {
+  background: var(--bg-panel);
+  border-radius: 8px;
+  box-shadow: var(--shadow-panel);
+  padding: 24px 28px 20px;
+  border: 1px solid var(--border-color);
+  width: 880px;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* --- Search bar --- */
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--search-bg);
+  border: 1px solid var(--search-border);
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin-bottom: 20px;
+  transition: border-color 0.15s;
+}
+
+.search-bar:focus-within {
+  border-color: var(--search-focus);
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  outline: none;
+  font-family: inherit;
+}
+
+.search-input::placeholder {
+  color: var(--text-placeholder);
+}
+
+.search-bar .icon-svg {
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+/* --- Body layout (pinned + sidebar) --- */
+.start-body {
+  display: flex;
+  gap: 24px;
+}
+
+/* --- Pinned area --- */
+.pinned-area {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.section-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.section-label--side {
+  margin-bottom: 10px;
+}
+
+/* --- Pinned grid (6 × 3) --- */
+.pinned-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 2px;
+}
+
+/* --- Individual pin tile --- */
+.pin-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 14px 4px 10px;
+  border-radius: 6px;
+  background: var(--tile-bg);
+  cursor: default;
+  position: relative;
+  transition: background 0.12s;
+  min-height: 88px;
+}
+
+.pin-tile:hover {
+  background: var(--tile-hover);
+}
+
+/* Drag-and-drop visual indicators */
+.pin-tile--drop-target {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+  background: var(--tile-hover);
+}
+
+.pin-tile--dragging {
+  opacity: 0.4;
+  cursor: grabbing;
+}
+
+.pin-tile--empty {
+  background: transparent;
+  pointer-events: none;
+}
+
+.pin-tile--empty:hover {
+  background: transparent;
+}
+
+/* Remove (×) button — hidden until tile hover */
+.remove-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  border: none;
+  background: var(--remove-bg);
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: background 0.12s, color 0.12s;
+}
+
+.pin-tile:hover .remove-btn {
+  display: flex;
+}
+
+.remove-btn:hover {
+  background: var(--remove-hover);
+  color: #ffffff;
+}
+
+.pin-icon {
+  color: var(--svg-color);
+  display: flex;
+  align-items: center;
+}
+
+.pin-label {
+  font-size: 0.72rem;
+  color: var(--text-primary);
+  text-align: center;
+  line-height: 1.3;
+  max-width: 72px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* --- Page dots (pagination) --- */
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 14px;
+}
+
+.page-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: none;
+  background: var(--page-dot);
+  padding: 0;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.12s;
+}
+
+.page-dot:hover {
+  transform: scale(1.3);
+}
+
+.page-dot--active {
+  background: var(--page-active);
+}
+
+/* --- All apps sidebar --- */
+.all-apps-panel {
+  width: 180px;
+  flex-shrink: 0;
+  border-left: 1px solid var(--border-color);
+  padding-left: 16px;
+}
+
+.all-app-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow-y: auto;
+  max-height: 440px;
+}
+
+/* --- Each All apps item --- */
+.all-app-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-size: 0.78rem;
+  position: relative;
+  transition: background 0.12s;
+}
+
+.all-app-item:hover {
+  background: var(--bg-hover);
+}
+
+.all-app-icon {
+  color: var(--svg-color);
+  flex-shrink: 0;
+}
+
+.all-app-name {
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Add button */
+.add-btn {
+  margin-left: auto;
+  padding: 3px 8px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 4px;
+  background: var(--add-bg);
+  color: var(--add-text);
+  cursor: pointer;
+  transition: background 0.12s;
+  white-space: nowrap;
+}
+
+.add-btn:hover {
+  background: var(--add-hover);
+}
+
+/* Pinned badge */
+.pin-badge {
+  margin-left: auto;
+  color: var(--badge-bg);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+/* --- SVG icons --- */
+.icon-svg {
+  color: var(--svg-color);
+  display: block;
+}
+
+/* --- Responsive adjustments --- */
+@media (max-width: 760px) {
+  .start-body {
+    flex-direction: column;
+  }
+
+  .pinned-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .all-apps-panel {
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid var(--border-color);
+    padding-left: 0;
+    padding-top: 12px;
+  }
+
+  .all-app-list {
+    flex-direction: row;
+    flex-wrap: wrap;
+    max-height: none;
+  }
+
+  .all-app-item {
+    flex: 0 0 auto;
+    width: calc(50% - 4px);
+  }
+
+  .pin-tile {
+    min-height: 72px;
+    padding: 10px 2px 8px;
+  }
+
+  .pin-label {
+    max-width: 56px;
+    font-size: 0.68rem;
+  }
+
+  .start-panel {
+    padding: 16px;
+  }
+}
+
+/* Very narrow screens: ensure .start-panel collapses to full width */
+@media (max-width: 700px) {
+  .start-panel {
+    width: 100%;
+  }
+
+  .export-controls {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .pin-tile .icon-svg,
+  .all-app-icon,
+  .pin-icon {
+    /* Dark mode — icons already inherit --svg-color */
+  }
+}
+
+/* ==========================================================================
+   Export panel
+   ========================================================================== */
+
+#export-container {
+  max-width: 880px;
+  width: 100%;
+  margin: 16px auto 0;
+  box-sizing: border-box;
+  background: var(--bg-panel);
+  border-radius: 8px;
+  box-shadow: var(--shadow-panel);
+  padding: 24px 28px 20px;
+  border: 1px solid var(--border-color);
+}
+
+.panel-heading {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--header-text);
+  margin-bottom: 12px;
+}
+
+.empty-note {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+/* Controls row (Format + applyOnce selects) */
+.export-controls {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.control-label {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-right: 6px;
+}
+
+.export-controls select {
+  font-size: 0.85rem;
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* Output textarea */
+.export-output {
+  width: 100%;
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  padding: 12px;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  resize: vertical;
+}
+
+/* Buttons row */
+.export-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  margin-bottom: 14px;
+}
+
+.export-btn {
+  padding: 6px 18px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 4px;
+  background: var(--accent);
+  color: #ffffff;
+  cursor: pointer;
+  transition: background 0.12s, opacity 0.12s;
+}
+
+.export-btn:hover {
+  background: var(--accent-hover);
+}
+
+.export-btn--small {
+  padding: 3px 10px;
+  font-size: 0.75rem;
+}
+
+/* OMA-URI details box (Intune format) */
+.export-oma-details {
+  background: var(--bg-active);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  font-size: 0.8rem;
+}
+
+.oma-code-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.export-oma-details code {
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 0.75rem;
+  background: var(--bg-input);
+  padding: 3px 6px;
+  border-radius: 3px;
+  color: var(--text-primary);
+  overflow-x: auto;
+}
+
+.export-note {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  margin-top: 6px;
+}
+
+.export-note-line {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
