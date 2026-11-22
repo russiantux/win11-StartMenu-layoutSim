@@ -60,7 +60,7 @@ Deploying a full Start layout by policy stops users from pinning or unpinning ap
 ## Limitations
 
 - No Edge site pins (`secondaryTile`). The importer skips them with a warning.
-- No folders. The JSON format has no folder entries.
+- No folders. Windows 11 users can group pins into folders on the device, but the documented ConfigureStartPins JSON and taskbar XML have no folder construct, so a layout can't ship folders. (The `start:Folder` element belongs to the Windows 10 Start layout XML.)
 - App IDs must exist on the target device. A pin for a missing app is blank or absent.
 - Some classic apps have different IDs than their names suggest (for example Notepad and File Explorer). Check the AppID on the target device. See [Find the Application User Model ID of an installed app](https://learn.microsoft.com/en-us/windows/configuration/taskbar/pinned-apps).
 - Taskbar pins for apps that aren't provisioned for the user don't appear.

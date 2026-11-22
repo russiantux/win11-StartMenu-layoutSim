@@ -20,9 +20,7 @@ body {
   font-family: "Segoe UI Variable", "Segoe UI", system-ui, -apple-system, sans-serif;
   background: var(--bg-app);
   color: var(--text-primary);
-  display: flex;
-  justify-content: center;
-  padding: 2rem 1rem;
+  margin: 0;
   transition: background 0.2s, color 0.2s;
 }
 
@@ -101,9 +99,10 @@ body {
 
 /* --- App header --- */
 #app {
-  width: 100%;
   max-width: 880px;
-  min-width: 0;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  box-sizing: content-box;
 }
 
 #app header {

@@ -6,7 +6,7 @@ status=0
 for f in js/*.js; do
   out=$("$JSC" -m "$f" 2>&1)
   # A ReferenceError for browser globals means the module parsed fine.
-  if [ -n "$out" ] && ! echo "$out" | grep -q "ReferenceError: Can't find variable: \(document\|window\|localStorage\|navigator\)"; then
+  if [ -n "$out" ] && ! echo "$out" | grep -q "ReferenceError: Can't find variable: \(document\|window\|localStorage\|navigator\|HTMLElement\)"; then
     echo "FAIL $f: $out"; status=1
   else
     echo "ok   $f"
